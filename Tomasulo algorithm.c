@@ -63,12 +63,12 @@ int main(void)
 {
     int AmountOfLine = 1;
     CalculationLine(&AmountOfLine);
-    //­pºâ¦æ¼Æ
+    //è¨ˆç®—è¡Œæ•¸
 
     struct RecordTime *RT = (struct RecordTime *)malloc(AmountOfLine * sizeof(struct RecordTime));
     RT->CompTime = (int *)calloc(AmountOfLine, sizeof(int));
     RT->ResultTime = (int *)calloc(AmountOfLine, sizeof(int));
-    //«Å§i¬ö¿ı®É¶¡
+    //å®£å‘Šç´€éŒ„æ™‚é–“
 
     struct Data *DA = (struct Data *)malloc(AmountOfLine * sizeof(struct Data));
     for (int i = 0; i < AmountOfLine; i++)
@@ -78,9 +78,9 @@ int main(void)
         DA[i].Dj = (char *)calloc(6, sizeof(char));
         DA[i].Dk = (char *)calloc(6, sizeof(char));
     }
-    //«Å§i¤åÀÉ¤º®e
+    //å®£å‘Šæ–‡æª”å…§å®¹
     LoadData(&AmountOfLine, DA);
-    //Åª¨ú¤åÀÉ¸ê®Æ
+    //è®€å–æ–‡æª”è³‡æ–™
 
     struct Buffer *BF = (struct Buffer *)calloc(3, sizeof(struct Buffer));
     BF->BFbusy = (bool *)calloc(3, sizeof(bool));
@@ -94,15 +94,15 @@ int main(void)
         strcpy(BF[i].BFname, "load");
         strcat(BF[i].BFname, str);
     }
-    //«Å§ibuffer¦³3­Óload
+    //å®£å‘Šbufferæœ‰3å€‹load
 
     int *Memory = (int *)malloc(64 * sizeof(int));
-    //«Å§i°O¾ĞÅé¤j¤p
+    //å®£å‘Šè¨˜æ†¶é«”å¤§å°
     for (int i = 0; i < 64; i++)
     {
         Memory[i] = 1;
     }
-    //ªì©l¤Æ°O¾ĞÅé ¹w³]¬°1
+    //åˆå§‹åŒ–è¨˜æ†¶é«” é è¨­ç‚º1
 
     struct Add *ADD = (struct Add *)malloc(3 * sizeof(struct Add));
     ADD->ADbusy = (bool *)calloc(3, sizeof(bool));
@@ -126,12 +126,12 @@ int main(void)
         MULT[i].MUqk = (char *)calloc(5, sizeof(char));
     }
     MULT->MUtime = (int *)calloc(2, sizeof(int));
-    //«Å§i­p«ü¥O©Ò»İªº°}¦C
+    //å®£å‘Šè¨ˆæŒ‡ä»¤æ‰€éœ€çš„é™£åˆ—
 
     struct Register *RE = (struct Register *)malloc(32 * sizeof(struct Register));
     RE->REfloat = (int *)calloc(16, sizeof(int));
     RE->REinteger = (int *)calloc(32, sizeof(int));
-    //«Å§i¾ã¼Æ¤Î¯BÂI¼Æ¼È¦s¾¹
+    //å®£å‘Šæ•´æ•¸åŠæµ®é»æ•¸æš«å­˜å™¨
     for (int i = 0; i < 16; i++)
     {
         RE->REfloat[i] = 1;
@@ -141,15 +141,15 @@ int main(void)
     {
         RE[i].REintaddress = (char *)calloc(6, sizeof(char));
     }
-    //ªì©l¤Æ¯BÂI¼Æ¼È¦s¾¹ ¹w³]¬Ò¬°1
+    //åˆå§‹åŒ–æµ®é»æ•¸æš«å­˜å™¨ é è¨­çš†ç‚º1
     RE->REinteger[1] = 16;
-    //ªì©l¤Æ¾ã¼Æ¼È¦s¾¹ ¹w³]¬Ò¬°0 °£¤FR1=16
+    //åˆå§‹åŒ–æ•´æ•¸æš«å­˜å™¨ é è¨­çš†ç‚º0 é™¤äº†R1=16
 
     struct InstructionStatus *IS = (struct InstructionStatus *)malloc(AmountOfLine * sizeof(struct InstructionStatus));
     IS->ISissue = (int *)calloc((AmountOfLine), sizeof(int));
     IS->IScomp = (int *)calloc((AmountOfLine), sizeof(int));
     IS->ISresult = (int *)calloc((AmountOfLine), sizeof(int));
-    //«Å§i«ü¥Üª¬ºA©Ò»İ°}¦C
+    //å®£å‘ŠæŒ‡ç¤ºç‹€æ…‹æ‰€éœ€é™£åˆ—
     MakeChart(&AmountOfLine, DA, BF, ADD, MULT, RE, IS);
     while (clock != AmountOfLine)
     {
@@ -205,62 +205,62 @@ void MakeChart(int *AOL, struct Data *_DA, struct Buffer *_BF, struct Add *_ADD,
 {
     printf("Instruction status:\n");
     printf("Op\ti\tj\tk\tIssue\tComp\tResult\n");
-    printf("\t\t\t\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    printf("\t\t\t\tâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
     for (int i = 0; i < (*AOL); i++)
     {
         if (strcmpi(_DA[i].Dop, "L.D") == 0)
         {
-            printf("%s\t%s\t%s\t\t¡U%d\t%d\t%d\t¡U\n", _DA[i].Dop, _DA[i].Di, _DA[i].Dj, _IS->ISissue[i], _IS->IScomp[i], _IS->ISresult[i]);
+            printf("%s\t%s\t%s\t\tï½œ%d\t%d\t%d\tï½œ\n", _DA[i].Dop, _DA[i].Di, _DA[i].Dj, _IS->ISissue[i], _IS->IScomp[i], _IS->ISresult[i]);
         }
         else
         {
-            printf("%s\t%s\t%s\t%s\t¡U%d\t%d\t%d\t¡U\n", _DA[i].Dop, _DA[i].Di, _DA[i].Dj, _DA[i].Dk, _IS->ISissue[i], _IS->IScomp[i], _IS->ISresult[i]);
+            printf("%s\t%s\t%s\t%s\tï½œ%d\t%d\t%d\tï½œ\n", _DA[i].Dop, _DA[i].Di, _DA[i].Dj, _DA[i].Dk, _IS->ISissue[i], _IS->IScomp[i], _IS->ISresult[i]);
         }
     }
-    printf("\t\t\t\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
-    //µe¥XInstruction status
+    printf("\t\t\t\tâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
+    //ç•«å‡ºInstruction status
 
     printf("\tBusy\tAddress\n");
-    printf("\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    printf("\tâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
 
     for (int i = 0; i < 3; i++)
     {
-        printf("%s\t¡U%d\t%s   ¡U\n", _BF[i].BFname, _BF->BFbusy[i], _BF[i].BFaddress);
+        printf("%s\tï½œ%d\t%s   ï½œ\n", _BF[i].BFname, _BF->BFbusy[i], _BF[i].BFaddress);
     }
-    printf("\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
-    //µe¥XLoad/Buffers
+    printf("\tâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
+    //ç•«å‡ºLoad/Buffers
 
     printf("Reservation Stations:\t\tS1\tS2\tRS\tRS\n");
     printf("Time\tName\tBusy\tOp\tVj\tVk\tQj\tQk\n");
-    printf("\t\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    printf("\t\tâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
     for (int i = 0; i < 3; i++)
     {
-        printf("\t%d\t¡U%d\t%s\t%s\t%s\t%s\t%s¡U\n", _ADD->ADtime[i], _ADD->ADbusy[i], _ADD[i].ADop, _ADD[i].ADvj, _ADD[i].ADvk, _ADD[i].ADqj, _ADD[i].ADqk);
+        printf("\t%d\tï½œ%d\t%s\t%s\t%s\t%s\t%sï½œ\n", _ADD->ADtime[i], _ADD->ADbusy[i], _ADD[i].ADop, _ADD[i].ADvj, _ADD[i].ADvk, _ADD[i].ADqj, _ADD[i].ADqk);
     }
     for (int i = 0; i < 2; i++)
     {
-        printf("\t%d\t¡U%d\t%s\t%s\t%s\t%s\t%s¡U\n", _MULT->MUtime[i], _MULT->MUbusy[i], _MULT[i].MUop, _MULT[i].MUvj, _MULT[i].MUvk, _MULT[i].MUqj, _MULT[i].MUqk);
+        printf("\t%d\tï½œ%d\t%s\t%s\t%s\t%s\t%sï½œ\n", _MULT->MUtime[i], _MULT->MUbusy[i], _MULT[i].MUop, _MULT[i].MUvj, _MULT[i].MUvk, _MULT[i].MUqj, _MULT[i].MUqk);
     }
-    printf("\t\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
-    //µe¥XReservation Stations
+    printf("\t\tâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
+    //ç•«å‡ºReservation Stations
 
     printf("Register result status:\n");
     printf("Clock\t\t");
     for (int i = 0; i < 16; i++)
         printf("F%d\t", (i * 2));
-    printf("\n\t\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    printf("\n\t\tâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
     printf("%d\t\t", clock);
     for (int i = 0; i < 16; i++)
         printf("%s\t", _RE[i].REfloataddress);
-    printf("\n\t\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
-    //µe¥X¯BÂI¼Æ°O¾ĞÅé¦ì§}
+    printf("\n\t\tâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
+    //ç•«å‡ºæµ®é»æ•¸è¨˜æ†¶é«”ä½å€
     for (int i = 0; i < 32; i++)
         printf("R%d\t", i);
-    printf("\n¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    printf("\nâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
     for (int i = 0; i < 32; i++)
         printf("%s\t", _RE[i].REintaddress);
-    printf("\n¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
-    //µe¥X¾ã¼Æ°O¾ĞÅé¦ì§}
+    printf("\nâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
+    //ç•«å‡ºæ•´æ•¸è¨˜æ†¶é«”ä½å€
     printf("clock:%d\n", clock);
 }
 void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_BF, struct Add *_ADD, struct Mult *_MULT, struct Register *_RE, struct InstructionStatus *_IS, struct RecordTime *_RT)
@@ -270,60 +270,59 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
     if (strcmpi(_DA[clock].Dop, "L.D") == 0) //2 cycles
     {
         _IS->ISissue[clock] = clock + 1;
-        sscanf(_DA[clock].Di, "F%d,", &Itemp); //¨ú±oload¦ì¸m
-        for (int i = 0; i < 3; i++)            //§ä¥XªÅªºbuffer±N¸ê®Æ©ñ¤J
+        sscanf(_DA[clock].Di, "F%d,", &Itemp); //å–å¾—loadä½ç½®
+        for (int i = 0; i < 3; i++)            //æ‰¾å‡ºç©ºçš„bufferå°‡è³‡æ–™æ”¾å…¥
         {
             if (!(_BF->BFbusy[i]))
             {
-                _RE[(Itemp / 2)].REfloataddress = _BF[i].BFname; //¦b¼È¦s¾¹©ñ¤Jbuffer¦ì¸m
-                _BF[i].BFaddress = _DA[clock].Dj;                //¦bbuffer¤¤©ñ¤Jj¦ì¸m
+                _RE[(Itemp / 2)].REfloataddress = _BF[i].BFname; //åœ¨æš«å­˜å™¨æ”¾å…¥bufferä½ç½®
+                _BF[i].BFaddress = _DA[clock].Dj;                //åœ¨bufferä¸­æ”¾å…¥jä½ç½®
                 _BF->BFbusy[i] = true;
                 break;
             }
         }
-        _RT->CompTime[clock] = clock + 3;   //³]¸m§¹¦¨®É¶¡
-        _RT->ResultTime[clock] = clock + 4; //³]¸m¿é¥X®É¶¡
+        _RT->CompTime[clock] = clock + 3;   //è¨­ç½®å®Œæˆæ™‚é–“
+        _RT->ResultTime[clock] = clock + 4; //è¨­ç½®è¼¸å‡ºæ™‚é–“
         clock++;
     }
     else if (strcmpi(_DA[clock].Dop, "S.D") == 0) //2 cycles
     {
         _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 3;   //³]¸m§¹¦¨®É¶¡
-        _RT->ResultTime[clock] = clock + 4; //³]¸m¿é¥X®É¶¡
+        _RT->CompTime[clock] = clock + 3;   //è¨­ç½®å®Œæˆæ™‚é–“
+        _RT->ResultTime[clock] = clock + 4; //è¨­ç½®è¼¸å‡ºæ™‚é–“
         clock++;
     }
     else if (strcmpi(_DA[clock].Dop, "ADD.D") == 0) //2 cycles
     {
         _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 3;   //³]¸m§¹¦¨®É¶¡
-        _RT->ResultTime[clock] = clock + 4; //³]¸m¿é¥X®É¶¡
+        _RT->CompTime[clock] = clock + 3;   //è¨­ç½®å®Œæˆæ™‚é–“
+        _RT->ResultTime[clock] = clock + 4; //è¨­ç½®è¼¸å‡ºæ™‚é–“
         clock++;
     }
     else if (strcmpi(_DA[clock].Dop, "SUB.D") == 0) //2 cycles
     {
         _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 3;   //³]¸m§¹¦¨®É¶¡
-        _RT->ResultTime[clock] = clock + 4; //³]¸m¿é¥X®É¶¡
+        _RT->CompTime[clock] = clock + 3;   //è¨­ç½®å®Œæˆæ™‚é–“
+        _RT->ResultTime[clock] = clock + 4; //è¨­ç½®è¼¸å‡ºæ™‚é–“
         clock++;
     }
     else if (strcmpi(_DA[clock].Dop, "MUL.D") == 0) //10 cycles
     {
         _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 11;   //³]¸m§¹¦¨®É¶¡
-        _RT->ResultTime[clock] = clock + 12; //³]¸m¿é¥X®É¶¡
+        _RT->CompTime[clock] = clock + 11;   //è¨­ç½®å®Œæˆæ™‚é–“
+        _RT->ResultTime[clock] = clock + 12; //è¨­ç½®è¼¸å‡ºæ™‚é–“
         clock++;
     }
     else if (strcmpi(_DA[clock].Dop, "DIV.D") == 0) //40 cycles
     {
         _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 11;   //³]¸m§¹¦¨®É¶¡
-        _RT->ResultTime[clock] = clock + 12; //³]¸m¿é¥X®É¶¡
+        _RT->CompTime[clock] = clock + 11;   //è¨­ç½®å®Œæˆæ™‚é–“
+        _RT->ResultTime[clock] = clock + 12; //è¨­ç½®è¼¸å‡ºæ™‚é–“
         clock++;
     }
-
-    for (int i = 0; i < (*AOL); i++) //ÀË¬d§¹¦¨®É¶¡¬O§_¤w¨ì¹F
+    for (int i = 0; i < (*AOL); i++) //æª¢æŸ¥å®Œæˆæ™‚é–“æ˜¯å¦å·²åˆ°é”
     {
-        if (_RT->CompTime[i] == clock) //§ó·s§¹¦¨®É¶¡
+        if (_RT->CompTime[i] == clock) //æ›´æ–°å®Œæˆæ™‚é–“
         {
             if (strcmpi(_DA[i].Dop, "L.D") == 0)
             {
@@ -358,12 +357,12 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
             else
                 printf("Error");
         }
-        else if (_RT->ResultTime[i] == clock) //§ó·swrite back®É¶¡
+        else if (_RT->ResultTime[i] == clock) //æ›´æ–°write backæ™‚é–“
         {
             if (strcmpi(_DA[i].Dop, "L.D") == 0)
             {
-                sscanf(_DA[i].Di, "F%d,", &Itemp);              //¨ú±oload¦ì¸m
-                sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3); //¨ú±o°¾²¾¶q»P°_©l¦ì¸m
+                sscanf(_DA[i].Di, "F%d,", &Itemp);              //å–å¾—loadä½ç½®
+                sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3); //å–å¾—åç§»é‡èˆ‡èµ·å§‹ä½ç½®
                 Itemp2 += _RE->REintaddress[Itemp3];
                 _RE->REfloat[(Itemp / 2)] = MEM[(Itemp2)]; //load data from memory
                 for (int j = 0; j < 3; j++)
@@ -388,8 +387,8 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
             }
             else if (strcmpi(_DA[i].Dop, "S.D") == 0)
             {
-                sscanf(_DA[i].Di, "F%d,", &Itemp);                  //¨ú±oload¦ì¸m
-                sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3);     //¨ú±o°¾²¾¶q»P°_©l¦ì¸m
+                sscanf(_DA[i].Di, "F%d,", &Itemp);                  //å–å¾—loadä½ç½®
+                sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3);     //å–å¾—åç§»é‡èˆ‡èµ·å§‹ä½ç½®
                 MEM[(Itemp2 + Itemp3)] = _RE->REfloat[(Itemp / 2)]; //store data from memory
                 _IS->ISresult[i] = clock;
                 _RT->ResultTime[i] = 0;
