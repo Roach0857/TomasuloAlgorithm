@@ -2,14 +2,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-void strchrn(char *dest, const char *src, char b, char e)
-{
-    char *m = strchr(src, b) + 1;
-    char *n = strchr(src, e);
-    int len = strlen(m) - strlen(n);
-    strncpy(dest, m, len);
-    dest[len] = '\0';
-}
 struct Data
 {
     char *Dop;
@@ -278,9 +270,8 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
     if (strcmpi(_DA[clock].Dop, "L.D") == 0) //2 cycles
     {
         _IS->ISissue[clock] = clock + 1;
-        strchrn(Ctemp, _DA[clock].Di, 'F', ','); //取得load位置
-        Itemp = atoi(Ctemp);
-        for (int i = 0; i < 3; i++) //找出空的buffer將資料放入
+        sscanf(_DA[clock].Di, "F%d,", &Itemp); //取得load位置
+        for (int i = 0; i < 3; i++)            //找出空的buffer將資料放入
         {
             if (!(_BF->BFbusy[i]))
             {
@@ -371,12 +362,8 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
         {
             if (strcmpi(_DA[i].Dop, "L.D") == 0)
             {
-                strchrn(Ctemp, _DA[i].Di, 'F', ',');  //取得load位置
-                strchrn(Ctemp2, _DA[i].Dj, ' ', '('); //取得偏移位置
-                strchrn(Ctemp3, _DA[i].Dj, 'R', ')'); //取得起始位置
-                Itemp = atoi(Ctemp);
-                Itemp2 = atoi(Ctemp2);
-                Itemp3 = atoi(Ctemp3);
+                sscanf(_DA[i].Di, "F%d,", &Itemp);              //取得load位置
+                sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3); //取得偏移量與起始位置
                 Itemp2 += _RE->REintaddress[Itemp3];
                 _RE->REfloat[(Itemp / 2)] = MEM[(Itemp2)]; //load data from memory
                 for (int j = 0; j < 3; j++)
@@ -401,13 +388,9 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
             }
             else if (strcmpi(_DA[i].Dop, "S.D") == 0)
             {
-                // strchrn(Ctemp, _DA[i].Di, 'F', ','); //取得store位置
-                // Itemp = atoi(Ctemp);
-                // strchrn(Ctemp2, _DA[i].Dj, ' ', '('); //取得偏移位置
-                // Itemp2 = atoi(Ctemp2);
-                // strchrn(Ctemp3, _DA[i].Dj, 'R', ')'); //取得起始位置
-                // Itemp3 = atoi(Ctemp3);
-                // MEM[(Itemp2 + Itemp3)] = _RE->REfloat[(Itemp / 2)];
+                sscanf(_DA[i].Di, "F%d,", &Itemp);                  //取得load位置
+                sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3);     //取得偏移量與起始位置
+                MEM[(Itemp2 + Itemp3)] = _RE->REfloat[(Itemp / 2)]; //store data from memory
                 _IS->ISresult[i] = clock;
                 _RT->ResultTime[i] = 0;
             }
