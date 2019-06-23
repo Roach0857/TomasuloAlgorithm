@@ -2,12 +2,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#define TEST "test2.txt"
 struct Data
 {
     char *Dop;
     char *Di;
     char *Dj;
     char *Dk;
+    char *Dtag;
+    bool *Dflag;
 };
 struct Buffer
 {
@@ -19,6 +22,7 @@ struct Buffer
 struct Add
 {
     bool *ADbusy;
+    char *ADname;
     char *ADop;
     char *ADvj;
     char *ADvk;
@@ -29,6 +33,7 @@ struct Add
 struct Mult
 {
     bool *MUbusy;
+    char *MUname;
     char *MUop;
     char *MUvj;
     char *MUvk;
@@ -57,18 +62,20 @@ struct RecordTime
 int clock = 0;
 void CalculationLine(int *);
 void LoadData(int *, struct Data *);
-void MakeChart(int *, struct Data *, struct Buffer *, struct Add *, struct Mult *, struct Register *, struct InstructionStatus *);
-void JudgmentAndOperation(int *, int *, struct Data *, struct Buffer *, struct Add *, struct Mult *, struct Register *, struct InstructionStatus *, struct RecordTime *);
+void MakeChart(int *, struct Data *, struct Buffer *, struct Buffer *, struct Add *, struct Mult *, struct Register *, struct InstructionStatus *);
+void JudgmentAndOperation(int *, int *, struct Data *, struct Buffer *, struct Buffer *, struct Add *, struct Mult *, struct Register *, struct InstructionStatus *, struct RecordTime *);
 int main(void)
 {
+    char str[1] = {0};
+    int flag = 1;
     int AmountOfLine = 1;
     CalculationLine(&AmountOfLine);
-    //è¨ˆç®—è¡Œæ•¸
+    //­pºâ¦æ¼Æ
 
     struct RecordTime *RT = (struct RecordTime *)malloc(AmountOfLine * sizeof(struct RecordTime));
     RT->CompTime = (int *)calloc(AmountOfLine, sizeof(int));
     RT->ResultTime = (int *)calloc(AmountOfLine, sizeof(int));
-    //å®£å‘Šç´€éŒ„æ™‚é–“
+    //«Å§i¬ö¿ı®É¶¡
 
     struct Data *DA = (struct Data *)malloc(AmountOfLine * sizeof(struct Data));
     for (int i = 0; i < AmountOfLine; i++)
@@ -77,61 +84,89 @@ int main(void)
         DA[i].Di = (char *)calloc(6, sizeof(char));
         DA[i].Dj = (char *)calloc(6, sizeof(char));
         DA[i].Dk = (char *)calloc(6, sizeof(char));
+        DA[i].Dtag = (char *)calloc(6, sizeof(char));
     }
-    //å®£å‘Šæ–‡æª”å…§å®¹
+    DA->Dflag = (bool *)calloc(AmountOfLine, sizeof(bool));
+    //«Å§i¤åÀÉ¤º®e
     LoadData(&AmountOfLine, DA);
-    //è®€å–æ–‡æª”è³‡æ–™
+    //Åª¨ú¤åÀÉ¸ê®Æ
 
-    struct Buffer *BF = (struct Buffer *)calloc(3, sizeof(struct Buffer));
-    BF->BFbusy = (bool *)calloc(3, sizeof(bool));
-    BF->BFvalue = (int *)calloc(3, sizeof(int));
-    char *str = (char *)malloc(1 * sizeof(char));
+    struct Buffer *LBF = (struct Buffer *)calloc(2, sizeof(struct Buffer));
+    LBF->BFbusy = (bool *)calloc(2, sizeof(bool));
+    LBF->BFvalue = (int *)calloc(2, sizeof(int));
+    // char *str = (char *)malloc(1 * sizeof(char));
+
     for (int i = 0; i < 3; i++)
     {
-        BF[i].BFaddress = (char *)calloc(6, sizeof(char));
-        BF[i].BFname = (char *)calloc(6, sizeof(char));
-        itoa(i + 1, str, 10);
-        strcpy(BF[i].BFname, "load");
-        strcat(BF[i].BFname, str);
+        LBF[i].BFaddress = (char *)calloc(6, sizeof(char));
+        LBF[i].BFname = (char *)calloc(6, sizeof(char));
+        //itoa(i + 1, str, 10);
+        sprintf(str, "%d", (i + 1));
+        strcpy(LBF[i].BFname, "load");
+        strcat(LBF[i].BFname, str);
     }
-    //å®£å‘Šbufferæœ‰3å€‹load
+    //«Å§ibuffer¦³2­Óload
+
+    struct Buffer *SBF = (struct Buffer *)calloc(2, sizeof(struct Buffer));
+    SBF->BFbusy = (bool *)calloc(2, sizeof(bool));
+    SBF->BFvalue = (int *)calloc(2, sizeof(int));
+
+    for (int i = 0; i < 3; i++)
+    {
+        SBF[i].BFaddress = (char *)calloc(6, sizeof(char));
+        SBF[i].BFname = (char *)calloc(6, sizeof(char));
+        //itoa(i + 1, str, 10);
+        sprintf(str, "%d", (i + 1));
+        strcpy(SBF[i].BFname, "store");
+        strcat(SBF[i].BFname, str);
+    }
+    //«Å§ibuffer¦³2­Óstore
 
     int *Memory = (int *)malloc(64 * sizeof(int));
-    //å®£å‘Šè¨˜æ†¶é«”å¤§å°
+    //«Å§i°O¾ĞÅé¤j¤p
     for (int i = 0; i < 64; i++)
     {
         Memory[i] = 1;
     }
-    //åˆå§‹åŒ–è¨˜æ†¶é«” é è¨­ç‚º1
+    //ªì©l¤Æ°O¾ĞÅé ¹w³]¬°1
 
     struct Add *ADD = (struct Add *)malloc(3 * sizeof(struct Add));
     ADD->ADbusy = (bool *)calloc(3, sizeof(bool));
     for (int i = 0; i < 3; i++)
     {
-        ADD[i].ADop = (char *)calloc(5, sizeof(char));
-        ADD[i].ADvj = (char *)calloc(5, sizeof(char));
-        ADD[i].ADvk = (char *)calloc(5, sizeof(char));
-        ADD[i].ADqj = (char *)calloc(5, sizeof(char));
-        ADD[i].ADqk = (char *)calloc(5, sizeof(char));
+        ADD[i].ADop = (char *)calloc(6, sizeof(char));
+        ADD[i].ADvj = (char *)calloc(6, sizeof(char));
+        ADD[i].ADvk = (char *)calloc(6, sizeof(char));
+        ADD[i].ADqj = (char *)calloc(6, sizeof(char));
+        ADD[i].ADqk = (char *)calloc(6, sizeof(char));
+        ADD[i].ADname = (char *)calloc(6, sizeof(char));
+        //itoa(i + 1, str2, 10);
+        sprintf(str, "%d", (i + 1));
+        strcpy(ADD[i].ADname, "Add");
+        strcat(ADD[i].ADname, str);
     }
     ADD->ADtime = (int *)calloc(3, sizeof(int));
     struct Mult *MULT = (struct Mult *)malloc(2 * sizeof(struct Mult));
     MULT->MUbusy = (bool *)calloc(3, sizeof(bool));
     for (int i = 0; i < 2; i++)
     {
-        MULT[i].MUop = (char *)calloc(5, sizeof(char));
-        MULT[i].MUvj = (char *)calloc(5, sizeof(char));
-        MULT[i].MUvk = (char *)calloc(5, sizeof(char));
-        MULT[i].MUqj = (char *)calloc(5, sizeof(char));
-        MULT[i].MUqk = (char *)calloc(5, sizeof(char));
+        MULT[i].MUop = (char *)calloc(6, sizeof(char));
+        MULT[i].MUvj = (char *)calloc(6, sizeof(char));
+        MULT[i].MUvk = (char *)calloc(6, sizeof(char));
+        MULT[i].MUqj = (char *)calloc(6, sizeof(char));
+        MULT[i].MUqk = (char *)calloc(6, sizeof(char));
+        MULT[i].MUname = (char *)calloc(6, sizeof(char));
+        sprintf(str, "%d", (i + 1));
+        strcpy(MULT[i].MUname, "Mult");
+        strcat(MULT[i].MUname, str);
     }
     MULT->MUtime = (int *)calloc(2, sizeof(int));
-    //å®£å‘Šè¨ˆæŒ‡ä»¤æ‰€éœ€çš„é™£åˆ—
+    //«Å§i­p«ü¥O©Ò»İªº°}¦C
 
     struct Register *RE = (struct Register *)malloc(32 * sizeof(struct Register));
     RE->REfloat = (int *)calloc(16, sizeof(int));
     RE->REinteger = (int *)calloc(32, sizeof(int));
-    //å®£å‘Šæ•´æ•¸åŠæµ®é»æ•¸æš«å­˜å™¨
+    //«Å§i¾ã¼Æ¤Î¯BÂI¼Æ¼È¦s¾¹
     for (int i = 0; i < 16; i++)
     {
         RE->REfloat[i] = 1;
@@ -141,22 +176,31 @@ int main(void)
     {
         RE[i].REintaddress = (char *)calloc(6, sizeof(char));
     }
-    //åˆå§‹åŒ–æµ®é»æ•¸æš«å­˜å™¨ é è¨­çš†ç‚º1
+    //ªì©l¤Æ¯BÂI¼Æ¼È¦s¾¹ ¹w³]¬Ò¬°1
     RE->REinteger[1] = 16;
-    //åˆå§‹åŒ–æ•´æ•¸æš«å­˜å™¨ é è¨­çš†ç‚º0 é™¤äº†R1=16
+    //ªì©l¤Æ¾ã¼Æ¼È¦s¾¹ ¹w³]¬Ò¬°0 °£¤FR1=16
 
     struct InstructionStatus *IS = (struct InstructionStatus *)malloc(AmountOfLine * sizeof(struct InstructionStatus));
     IS->ISissue = (int *)calloc((AmountOfLine), sizeof(int));
     IS->IScomp = (int *)calloc((AmountOfLine), sizeof(int));
     IS->ISresult = (int *)calloc((AmountOfLine), sizeof(int));
-    //å®£å‘ŠæŒ‡ç¤ºç‹€æ…‹æ‰€éœ€é™£åˆ—
-    MakeChart(&AmountOfLine, DA, BF, ADD, MULT, RE, IS);
-    while (clock != AmountOfLine)
+    //«Å§i«ü¥Üª¬ºA©Ò»İ°}¦C
+    MakeChart(&AmountOfLine, DA, LBF, SBF, ADD, MULT, RE, IS);
+    while (clock != 49)
+    //while (flag != AmountOfLine + 1)
     {
-        JudgmentAndOperation(&AmountOfLine, Memory, DA, BF, ADD, MULT, RE, IS, RT);
-        MakeChart(&AmountOfLine, DA, BF, ADD, MULT, RE, IS);
+        flag = 1;
+        JudgmentAndOperation(&AmountOfLine, Memory, DA, LBF, SBF, ADD, MULT, RE, IS, RT);
+        clock++;
+        //MakeChart(&AmountOfLine, DA, LBF, SBF, ADD, MULT, RE, IS);
+        for (int i = 0; i < AmountOfLine; i++)
+        {
+            if (DA->Dflag[i])
+            {
+                flag++;
+            }
+        }
     }
-
     printf("\n%d\n", AmountOfLine);
     system("pause");
     return 0;
@@ -164,7 +208,7 @@ int main(void)
 void LoadData(int *AOL, struct Data *_DA)
 {
     FILE *File;
-    File = fopen("test3.txt", "r");
+    File = fopen(TEST, "r");
     if (File)
     {
         for (int i = 0; i < (*AOL); i++)
@@ -191,7 +235,7 @@ void CalculationLine(int *AOL)
 {
     char string;
     FILE *File;
-    File = fopen("test3.txt", "r");
+    File = fopen(TEST, "r");
     while ((string = fgetc(File)) != EOF)
     {
         if (string == '\n')
@@ -201,220 +245,563 @@ void CalculationLine(int *AOL)
     }
     fclose(File);
 }
-void MakeChart(int *AOL, struct Data *_DA, struct Buffer *_BF, struct Add *_ADD, struct Mult *_MULT, struct Register *_RE, struct InstructionStatus *_IS)
+void MakeChart(int *AOL, struct Data *_DA, struct Buffer *_LBF, struct Buffer *_SBF, struct Add *_ADD, struct Mult *_MULT, struct Register *_RE, struct InstructionStatus *_IS)
 {
+    printf("clock:%d\n", clock);
     printf("Instruction status:\n");
     printf("Op\ti\tj\tk\tIssue\tComp\tResult\n");
-    printf("\t\t\t\tâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
+    printf("\t\t\t\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
     for (int i = 0; i < (*AOL); i++)
     {
         if (strcmpi(_DA[i].Dop, "L.D") == 0)
         {
-            printf("%s\t%s\t%s\t\tï½œ%d\t%d\t%d\tï½œ\n", _DA[i].Dop, _DA[i].Di, _DA[i].Dj, _IS->ISissue[i], _IS->IScomp[i], _IS->ISresult[i]);
+            printf("%s\t%s\t%s\t\t¡U%d\t%d\t%d\t¡U\n", _DA[i].Dop, _DA[i].Di, _DA[i].Dj, _IS->ISissue[i], _IS->IScomp[i], _IS->ISresult[i]);
         }
         else
         {
-            printf("%s\t%s\t%s\t%s\tï½œ%d\t%d\t%d\tï½œ\n", _DA[i].Dop, _DA[i].Di, _DA[i].Dj, _DA[i].Dk, _IS->ISissue[i], _IS->IScomp[i], _IS->ISresult[i]);
+            printf("%s\t%s\t%s\t%s\t¡U%d\t%d\t%d\t¡U\n", _DA[i].Dop, _DA[i].Di, _DA[i].Dj, _DA[i].Dk, _IS->ISissue[i], _IS->IScomp[i], _IS->ISresult[i]);
         }
     }
-    printf("\t\t\t\tâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
-    //ç•«å‡ºInstruction status
+    printf("\t\t\t\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+    //µe¥XInstruction status
 
     printf("\tBusy\tAddress\n");
-    printf("\tâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
-
-    for (int i = 0; i < 3; i++)
+    printf("\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    for (int i = 0; i < 2; i++)
     {
-        printf("%s\tï½œ%d\t%s   ï½œ\n", _BF[i].BFname, _BF->BFbusy[i], _BF[i].BFaddress);
+        printf("%s\t¡U%d\t%s   ¡U\n", _LBF[i].BFname, _LBF->BFbusy[i], _LBF[i].BFaddress);
     }
-    printf("\tâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
-    //ç•«å‡ºLoad/Buffers
+    printf("\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+    printf("\tBusy\tAddress\n");
+    printf("\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    for (int i = 0; i < 2; i++)
+    {
+        printf("%s\t¡U%d\t%s   ¡U\n", _SBF[i].BFname, _SBF->BFbusy[i], _SBF[i].BFaddress);
+    }
+    printf("\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+    //µe¥XLoad/Buffers
 
     printf("Reservation Stations:\t\tS1\tS2\tRS\tRS\n");
     printf("Time\tName\tBusy\tOp\tVj\tVk\tQj\tQk\n");
-    printf("\t\tâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
+    printf("\t\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
     for (int i = 0; i < 3; i++)
     {
-        printf("\t%d\tï½œ%d\t%s\t%s\t%s\t%s\t%sï½œ\n", _ADD->ADtime[i], _ADD->ADbusy[i], _ADD[i].ADop, _ADD[i].ADvj, _ADD[i].ADvk, _ADD[i].ADqj, _ADD[i].ADqk);
+        printf("%d\t%s\t¡U%d\t%s\t%s\t%s\t%s\t%s¡U\n", _ADD->ADtime[i], _ADD[i].ADname, _ADD->ADbusy[i], _ADD[i].ADop, _ADD[i].ADvj, _ADD[i].ADvk, _ADD[i].ADqj, _ADD[i].ADqk);
     }
     for (int i = 0; i < 2; i++)
     {
-        printf("\t%d\tï½œ%d\t%s\t%s\t%s\t%s\t%sï½œ\n", _MULT->MUtime[i], _MULT->MUbusy[i], _MULT[i].MUop, _MULT[i].MUvj, _MULT[i].MUvk, _MULT[i].MUqj, _MULT[i].MUqk);
+        printf("%d\t%s\t¡U%d\t%s\t%s\t%s\t%s\t%s¡U\n", _MULT->MUtime[i], _MULT[i].MUname, _MULT->MUbusy[i], _MULT[i].MUop, _MULT[i].MUvj, _MULT[i].MUvk, _MULT[i].MUqj, _MULT[i].MUqk);
     }
-    printf("\t\tâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
-    //ç•«å‡ºReservation Stations
+    printf("\t\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+    //µe¥XReservation Stations
 
     printf("Register result status:\n");
-    printf("Clock\t\t");
-    for (int i = 0; i < 16; i++)
+    printf("Clock\t");
+    for (int i = 0; i < 8; i++)
         printf("F%d\t", (i * 2));
-    printf("\n\t\tâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
-    printf("%d\t\t", clock);
-    for (int i = 0; i < 16; i++)
+    printf("\n\t¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    printf("%d\t", clock);
+    for (int i = 0; i < 8; i++)
         printf("%s\t", _RE[i].REfloataddress);
-    printf("\n\t\tâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
-    //ç•«å‡ºæµ®é»æ•¸è¨˜æ†¶é«”ä½å€
-    for (int i = 0; i < 32; i++)
+    printf("\n\t¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+    for (int i = 8; i < 16; i++)
+        printf("F%d\t", (i * 2));
+    printf("\n¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    for (int i = 8; i < 16; i++)
+        printf("%s\t", _RE[i].REfloataddress);
+    printf("\n¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+    //µe¥X¯BÂI¼Æ°O¾ĞÅé¦ì§}
+
+    for (int i = 0; i < 8; i++)
         printf("R%d\t", i);
-    printf("\nâ”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n");
-    for (int i = 0; i < 32; i++)
+    printf("\n¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    for (int i = 0; i < 8; i++)
         printf("%s\t", _RE[i].REintaddress);
-    printf("\nâ””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n");
-    //ç•«å‡ºæ•´æ•¸è¨˜æ†¶é«”ä½å€
-    printf("clock:%d\n", clock);
+    printf("\n¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+
+    for (int i = 8; i < 16; i++)
+        printf("R%d\t", i);
+    printf("\n¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    for (int i = 8; i < 16; i++)
+        printf("%s\t", _RE[i].REintaddress);
+    printf("\n¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+
+    for (int i = 16; i < 24; i++)
+        printf("R%d\t", i);
+    printf("\n¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    for (int i = 16; i < 24; i++)
+        printf("%s\t", _RE[i].REintaddress);
+    printf("\n¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+    for (int i = 24; i < 32; i++)
+        printf("R%d\t", i);
+    printf("\n¢z¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢{\n");
+    for (int i = 24; i < 32; i++)
+        printf("%s\t", _RE[i].REintaddress);
+    printf("\n¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\n");
+    //µe¥X¾ã¼Æ°O¾ĞÅé¦ì§}
 }
-void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_BF, struct Add *_ADD, struct Mult *_MULT, struct Register *_RE, struct InstructionStatus *_IS, struct RecordTime *_RT)
+void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_LBF, struct Buffer *_SBF, struct Add *_ADD, struct Mult *_MULT, struct Register *_RE, struct InstructionStatus *_IS, struct RecordTime *_RT)
 {
-    char Ctemp[2] = {0}, Ctemp2[2] = {0}, Ctemp3[2] = {0};
     int Itemp = 0, Itemp2 = 0, Itemp3 = 0;
-    if (strcmpi(_DA[clock].Dop, "L.D") == 0) //2 cycles
+    //²Ä¤@¦¸issueªº§PÂ_
+    if (clock < (*AOL))
     {
-        _IS->ISissue[clock] = clock + 1;
-        sscanf(_DA[clock].Di, "F%d,", &Itemp); //å–å¾—loadä½ç½®
-        for (int i = 0; i < 3; i++)            //æ‰¾å‡ºç©ºçš„bufferå°‡è³‡æ–™æ”¾å…¥
+        if (strcmpi(_DA[clock].Dop, "L.D") == 0) //2 cycles
         {
-            if (!(_BF->BFbusy[i]))
+            sscanf(_DA[clock].Di, "F%d,", &Itemp); //¨ú±oload¦ì¸m
+            for (int i = 0; i < 2; i++)            //§ä¥XªÅªºbuffer±N¸ê®Æ©ñ¤J
             {
-                _RE[(Itemp / 2)].REfloataddress = _BF[i].BFname; //åœ¨æš«å­˜å™¨æ”¾å…¥bufferä½ç½®
-                _BF[i].BFaddress = _DA[clock].Dj;                //åœ¨bufferä¸­æ”¾å…¥jä½ç½®
-                _BF->BFbusy[i] = true;
-                break;
-            }
-        }
-        _RT->CompTime[clock] = clock + 3;   //è¨­ç½®å®Œæˆæ™‚é–“
-        _RT->ResultTime[clock] = clock + 4; //è¨­ç½®è¼¸å‡ºæ™‚é–“
-        clock++;
-    }
-    else if (strcmpi(_DA[clock].Dop, "S.D") == 0) //2 cycles
-    {
-        _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 3;   //è¨­ç½®å®Œæˆæ™‚é–“
-        _RT->ResultTime[clock] = clock + 4; //è¨­ç½®è¼¸å‡ºæ™‚é–“
-        clock++;
-    }
-    else if (strcmpi(_DA[clock].Dop, "ADD.D") == 0) //2 cycles
-    {
-        _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 3;   //è¨­ç½®å®Œæˆæ™‚é–“
-        _RT->ResultTime[clock] = clock + 4; //è¨­ç½®è¼¸å‡ºæ™‚é–“
-        clock++;
-    }
-    else if (strcmpi(_DA[clock].Dop, "SUB.D") == 0) //2 cycles
-    {
-        _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 3;   //è¨­ç½®å®Œæˆæ™‚é–“
-        _RT->ResultTime[clock] = clock + 4; //è¨­ç½®è¼¸å‡ºæ™‚é–“
-        clock++;
-    }
-    else if (strcmpi(_DA[clock].Dop, "MUL.D") == 0) //10 cycles
-    {
-        _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 11;   //è¨­ç½®å®Œæˆæ™‚é–“
-        _RT->ResultTime[clock] = clock + 12; //è¨­ç½®è¼¸å‡ºæ™‚é–“
-        clock++;
-    }
-    else if (strcmpi(_DA[clock].Dop, "DIV.D") == 0) //40 cycles
-    {
-        _IS->ISissue[clock] = clock + 1;
-        _RT->CompTime[clock] = clock + 11;   //è¨­ç½®å®Œæˆæ™‚é–“
-        _RT->ResultTime[clock] = clock + 12; //è¨­ç½®è¼¸å‡ºæ™‚é–“
-        clock++;
-    }
-    for (int i = 0; i < (*AOL); i++) //æª¢æŸ¥å®Œæˆæ™‚é–“æ˜¯å¦å·²åˆ°é”
-    {
-        if (_RT->CompTime[i] == clock) //æ›´æ–°å®Œæˆæ™‚é–“
-        {
-            if (strcmpi(_DA[i].Dop, "L.D") == 0)
-            {
-                _IS->IScomp[i] = clock;
-                _RT->CompTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "S.D") == 0)
-            {
-                _IS->IScomp[i] = clock;
-                _RT->CompTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "ADD.D") == 0)
-            {
-                _IS->IScomp[i] = clock;
-                _RT->CompTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "SUB.D") == 0)
-            {
-                _IS->IScomp[i] = clock;
-                _RT->CompTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "MUL.D") == 0)
-            {
-                _IS->IScomp[i] = clock;
-                _RT->CompTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "DIV.D") == 0)
-            {
-                _IS->IScomp[i] = clock;
-                _RT->CompTime[i] = 0;
-            }
-            else
-                printf("Error");
-        }
-        else if (_RT->ResultTime[i] == clock) //æ›´æ–°write backæ™‚é–“
-        {
-            if (strcmpi(_DA[i].Dop, "L.D") == 0)
-            {
-                sscanf(_DA[i].Di, "F%d,", &Itemp);              //å–å¾—loadä½ç½®
-                sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3); //å–å¾—åç§»é‡èˆ‡èµ·å§‹ä½ç½®
-                Itemp2 += _RE->REintaddress[Itemp3];
-                _RE->REfloat[(Itemp / 2)] = MEM[(Itemp2)]; //load data from memory
-                for (int j = 0; j < 3; j++)
+                if (!(_LBF->BFbusy[i]))
                 {
-                    if (strcmpi(_DA[i].Dj, _BF[j].BFaddress) == 0)
+                    _RE[(Itemp / 2)].REfloataddress = _LBF[i].BFname; //¦b¼È¦s¾¹©ñ¤Jbuffer¦ì¸m
+                    _LBF[i].BFaddress = _DA[clock].Dj;                //¦bbuffer¤¤©ñ¤Jj¦ì¸m
+                    _LBF->BFbusy[i] = true;
+                    _DA[clock].Dtag = _LBF[i].BFname;
+                    printf("LDy\n");
+                    break;
+                }
+            };
+            _IS->ISissue[clock] = clock + 1;
+            _RT->CompTime[clock] = clock + 3;   //³]¸m§¹¦¨®É¶¡
+            _RT->ResultTime[clock] = clock + 4; //³]¸m¿é¥X®É¶¡
+        }
+        else if (strcmpi(_DA[clock].Dop, "S.D") == 0) //2 cycles
+        {
+            sscanf(_DA[clock].Di, "F%d,", &Itemp); //¨ú±ostore¦ì¸m
+            for (int i = 0; i < 2; i++)            //§ä¥XªÅªºbuffer±N¸ê®Æ©ñ¤J
+            {
+                if (!(_LBF->BFbusy[i]))
+                {
+                    _SBF[i].BFaddress = _DA[clock].Dj; //¦bbuffer¤¤©ñ¤Jj¦ì¸m
+                    _SBF->BFbusy[i] = true;
+                    _DA[clock].Dtag = _SBF[i].BFname;
+                    printf("SDy\n");
+                    break;
+                }
+            }
+            _IS->ISissue[clock] = clock + 1;
+            _RT->CompTime[clock] = clock + 3;   //³]¸m§¹¦¨®É¶¡
+            _RT->ResultTime[clock] = clock + 4; //³]¸m¿é¥X®É¶¡
+            clock++;
+        }
+        else if (strcmpi(_DA[clock].Dop, "ADD.D") == 0) //2 cycles
+        {
+            sscanf(_DA[clock].Di, "F%d,", &Itemp);
+            sscanf(_DA[clock].Dj, "F%d,", &Itemp2);
+            sscanf(_DA[clock].Dk, "F%d", &Itemp3);
+            for (int i = 0; i < 3; i++) //©ñ¸mBusy©MOp
+            {
+                if (!(_ADD->ADbusy[i]))
+                {
+                    _ADD->ADbusy[i] = true;
+                    _ADD[i].ADop = _DA[clock].Dop;
+                    _RE[(Itemp / 2)].REfloataddress = _ADD[i].ADname;
+                    _DA[clock].Dtag = _ADD[i].ADname;
+                    //­Y¨â­Ó¼È¦s¾¹¬Ò¨S¦³¦Aload¡A«h¥i¥H³]¸m§¹¦¨¤Î¿é¥X®É¶¡
+                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0 && strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
                     {
-                        _BF[j].BFaddress = "";
-                        _BF->BFbusy[j] = false;
-                        for (int k = 0; k < 15; k++)
+                        _ADD[i].ADvj = _DA[clock].Dj;
+                        _ADD[i].ADvk = _DA[clock].Dk;
+                        _RT->CompTime[clock] = clock + 3;   //³]¸m§¹¦¨®É¶¡
+                        _RT->ResultTime[clock] = clock + 4; //³]¸m¿é¥X®É¶¡
+                        printf("%s %d\n", _ADD[i].ADname, _RT->CompTime[clock]);
+                        printf("ADDy\n");
+                        break;
+                    }
+                    else
+                    {
+                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
                         {
-                            if (_BF[j].BFname == _RE[k].REfloataddress)
-                            {
-                                _RE[k].REfloataddress = "";
-                                break;
-                            }
+                            _ADD[i].ADvj = _DA[clock].Dj;
+                        }
+                        else
+                        {
+                            _ADD[i].ADqj = _RE[(Itemp2 / 2)].REfloataddress;
+                        }
+                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _ADD[i].ADvk = _DA[clock].Dk;
+                        }
+                        else
+                        {
+                            _ADD[i].ADqk = _RE[(Itemp3 / 2)].REfloataddress;
+                        }
+                        printf("ADDy\n");
+                        break;
+                    }
+                }
+            }
+            _IS->ISissue[clock] = clock + 1;
+        }
+        else if (strcmpi(_DA[clock].Dop, "SUB.D") == 0) //2 cycles
+        {
+            sscanf(_DA[clock].Di, "F%d,", &Itemp);
+            sscanf(_DA[clock].Dj, "F%d,", &Itemp2);
+            sscanf(_DA[clock].Dk, "F%d", &Itemp3);
+            for (int i = 0; i < 3; i++) //©ñ¸mBusy©MOp
+            {
+                if (!(_ADD->ADbusy[i]))
+                {
+                    _ADD->ADbusy[i] = true;
+                    _ADD[i].ADop = _DA[clock].Dop;
+                    _RE[(Itemp / 2)].REfloataddress = _ADD[i].ADname;
+                    _DA[clock].Dtag = _ADD[i].ADname;
+                    //­Y¨â­Ó¼È¦s¾¹¬Ò¨S¦³¦Aload¡A«h¥i¥H³]¸m§¹¦¨¤Î¿é¥X®É¶¡
+                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0 && strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
+                    {
+                        _ADD[i].ADvj = _DA[clock].Dj;
+                        _ADD[i].ADvk = _DA[clock].Dk;
+                        _RT->CompTime[clock] = clock + 3;   //³]¸m§¹¦¨®É¶¡
+                        _RT->ResultTime[clock] = clock + 4; //³]¸m¿é¥X®É¶¡
+                        printf("%s %d\n", _ADD[i].ADname, _RT->CompTime[clock]);
+                        printf("SUBy\n");
+                        break;
+                    }
+                    else
+                    {
+                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _ADD[i].ADvj = _DA[clock].Dj;
+                        }
+                        else
+                        {
+                            _ADD[i].ADqj = _RE[(Itemp2 / 2)].REfloataddress;
+                        }
+                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _ADD[i].ADvk = _DA[clock].Dk;
+                        }
+                        else
+                        {
+                            _ADD[i].ADqk = _RE[(Itemp3 / 2)].REfloataddress;
+                        }
+                        printf("SUBy\n");
+                        break;
+                    }
+                }
+            }
+            _IS->ISissue[clock] = clock + 1;
+        }
+        else if (strcmpi(_DA[clock].Dop, "MUL.D") == 0) //10 cycles
+        {
+            sscanf(_DA[clock].Di, "F%d,", &Itemp);
+            sscanf(_DA[clock].Dj, "F%d,", &Itemp2);
+            sscanf(_DA[clock].Dk, "F%d", &Itemp3);
+            for (int i = 0; i < 2; i++) //©ñ¸mBusy©MOp
+            {
+                if (!(_MULT->MUbusy[i]))
+                {
+                    _MULT->MUbusy[i] = true;
+                    _MULT[i].MUop = _DA[clock].Dop;
+                    _RE[(Itemp / 2)].REfloataddress = _MULT[i].MUname;
+                    _DA[clock].Dtag = _MULT[i].MUname;
+                    //­Y¨â­Ó¼È¦s¾¹¬Ò¨S¦³¦Aload¡A«h¥i¥H³]¸m§¹¦¨¤Î¿é¥X®É¶¡
+                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0 && strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
+                    {
+                        _MULT[i].MUvj = _DA[clock].Dj;
+                        _MULT[i].MUvk = _DA[clock].Dk;
+                        _RT->CompTime[clock] = clock + 11;   //³]¸m§¹¦¨®É¶¡
+                        _RT->ResultTime[clock] = clock + 12; //³]¸m¿é¥X®É¶¡
+                        printf("%s %d\n", _MULT[i].MUname, _RT->CompTime[clock]);
+                        printf("MULy\n");
+                        break;
+                    }
+                    else
+                    {
+                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _MULT[i].MUvj = _DA[clock].Dj;
+                        }
+                        else
+                        {
+                            _MULT[i].MUqj = _RE[(Itemp2 / 2)].REfloataddress;
+                        }
+                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _MULT[i].MUvk = _DA[clock].Dk;
+                        }
+                        else
+                        {
+                            _MULT[i].MUqk = _RE[(Itemp3 / 2)].REfloataddress;
+                        }
+                        printf("MULy\n");
+                        break;
+                    }
+                }
+            }
+            _IS->ISissue[clock] = clock + 1;
+        }
+        else if (strcmpi(_DA[clock].Dop, "DIV.D") == 0) //40 cycles
+        {
+            sscanf(_DA[clock].Di, "F%d,", &Itemp);
+            sscanf(_DA[clock].Dj, "F%d,", &Itemp2);
+            sscanf(_DA[clock].Dk, "F%d", &Itemp3);
+            for (int i = 0; i < 2; i++) //©ñ¸mBusy©MOp
+            {
+                if (!(_MULT->MUbusy[i]))
+                {
+                    _MULT->MUbusy[i] = true;
+                    _MULT[i].MUop = _DA[clock].Dop;
+                    _RE[(Itemp / 2)].REfloataddress = _MULT[i].MUname;
+                    _DA[clock].Dtag = _MULT[i].MUname;
+                    //­Y¨â­Ó¼È¦s¾¹¬Ò¨S¦³¦Aload¡A«h¥i¥H³]¸m§¹¦¨¤Î¿é¥X®É¶¡
+                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0 && strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
+                    {
+                        _MULT[i].MUvj = _DA[clock].Dj;
+                        _MULT[i].MUvk = _DA[clock].Dk;
+                        _RT->CompTime[clock] = clock + 41;   //³]¸m§¹¦¨®É¶¡
+                        _RT->ResultTime[clock] = clock + 42; //³]¸m¿é¥X®É¶¡
+                        printf("%s %d\n", _MULT[i].MUname, _RT->CompTime[clock]);
+                        printf("DIVy\n");
+                        break;
+                    }
+                    else
+                    {
+                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _MULT[i].MUvj = _DA[clock].Dj;
+                        }
+                        else
+                        {
+                            _MULT[i].MUqj = _RE[(Itemp2 / 2)].REfloataddress;
+                        }
+                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _MULT[i].MUvk = _DA[clock].Dk;
+                        }
+                        else
+                        {
+                            _MULT[i].MUqk = _RE[(Itemp3 / 2)].REfloataddress;
+                        }
+                        printf("DIVy\n");
+                        break;
+                    }
+                }
+            }
+            _IS->ISissue[clock] = clock + 1;
+        }
+    }
+
+    //ÀË¬d¨S¦³§¹¦¨¤Î¿é¥X®É¶¡¹Bºâ¤¸
+    for (int j = 0; j < 3; j++) //Add
+    {
+        if (_ADD->ADbusy[j] == 1)
+        {
+            for (int i = 0; i < (*AOL); i++)
+            {
+                if (strcmpi(_DA[i].Dtag, _ADD[j].ADname) == 0 && _RT->CompTime[i] == 0)
+                {
+                    sscanf(_DA[i].Dj, "F%d,", &Itemp2);
+                    sscanf(_DA[i].Dk, "F%d", &Itemp3);
+                    if (strlen(_ADD[j].ADvj) == 0 || strlen(_ADD[j].ADvk) == 0)
+                    {
+                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0)
+                        {
+                            _ADD[j].ADvj = _DA[i].Dj;
+                            _ADD[j].ADqj = "";
+                        }
+                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _ADD[j].ADvk = _DA[i].Dk;
+                            _ADD[j].ADqk = "";
+                        }
+                    }
+                    if (strlen(_ADD[j].ADvj) != 0 && strlen(_ADD[j].ADvk) != 0)
+                    {
+                        _RT->CompTime[i] = clock + 3;   //³]¸m§¹¦¨®É¶¡
+                        _RT->ResultTime[i] = clock + 4; //³]¸m¿é¥X®É¶¡
+                        printf("%s %d %d\n", _ADD[j].ADname, _RT->CompTime[i], _RT->ResultTime[i]);
+                    }
+                }
+            }
+        }
+    }
+    for (int j = 0; j < 2; j++) //Mult
+    {
+        if (_MULT->MUbusy[j] == 1)
+        {
+            for (int i = 0; i < (*AOL); i++)
+            {
+                if (strcmpi(_DA[i].Dtag, _MULT[j].MUname) == 0 && _RT->CompTime[i] == 0)
+                {
+                    sscanf(_DA[i].Dj, "F%d,", &Itemp2);
+                    sscanf(_DA[i].Dk, "F%d", &Itemp3);
+                    if (strlen(_MULT[j].MUvj) == 0 || strlen(_MULT[j].MUvk) == 0)
+                    {
+                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0)
+                        {
+                            _MULT[j].MUvj = _DA[i].Dj;
+                            _MULT[j].MUqj = "";
+                        }
+                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //½T»{¸Ó¼È¦s¾¹¬O§_¦Aload
+                        {
+                            _MULT[j].MUvk = _DA[i].Dk;
+                            _MULT[j].MUqk = "";
+                        }
+                    }
+                    if (strlen(_MULT[j].MUvj) != 0 && strlen(_MULT[j].MUvk) != 0)
+                    {
+                        if (strcmpi(_MULT[j].MUop, "MUL.D") == 0)
+                        {
+                            _RT->CompTime[i] = clock + 11;   //³]¸m§¹¦¨®É¶¡
+                            _RT->ResultTime[i] = clock + 12; //³]¸m¿é¥X®É¶¡
+                            printf("%s %d %d\n", _ADD[j].ADname, _RT->CompTime[i], _RT->ResultTime[i]);
+                        }
+                        else if (strcmpi(_MULT[j].MUop, "DIV.D") == 0)
+                        {
+                            _RT->CompTime[i] = clock + 41;   //³]¸m§¹¦¨®É¶¡
+                            _RT->ResultTime[i] = clock + 42; //³]¸m¿é¥X®É¶¡
+                            printf("%s %d %d\n", _ADD[j].ADname, _RT->CompTime[i], _RT->ResultTime[i]);
                         }
                         break;
                     }
                 }
-                _IS->ISresult[i] = clock;
-                _RT->ResultTime[i] = 0;
             }
-            else if (strcmpi(_DA[i].Dop, "S.D") == 0)
-            {
-                sscanf(_DA[i].Di, "F%d,", &Itemp);                  //å–å¾—loadä½ç½®
-                sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3);     //å–å¾—åç§»é‡èˆ‡èµ·å§‹ä½ç½®
-                MEM[(Itemp2 + Itemp3)] = _RE->REfloat[(Itemp / 2)]; //store data from memory
-                _IS->ISresult[i] = clock;
-                _RT->ResultTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "ADD.D") == 0)
-            {
-                _IS->ISresult[i] = clock;
-                _RT->ResultTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "SUB.D") == 0)
-            {
-                _IS->ISresult[i] = clock;
-                _RT->ResultTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "MUL.D") == 0)
-            {
-                _IS->ISresult[i] = clock;
-                _RT->ResultTime[i] = 0;
-            }
-            else if (strcmpi(_DA[i].Dop, "DIV.D") == 0)
-            {
-                _IS->ISresult[i] = clock;
-                _RT->ResultTime[i] = 0;
-            }
-            else
-                printf("Error");
         }
     }
+    //ÀË¬d§¹¦¨®É¶¡¬O§_¤w¨ì¹F
+    for (int i = 0; i < (*AOL); i++)
+    {
+        if (_RT->CompTime[i] > 0 || _RT->ResultTime[i] > 0)
+        {
+            if (_RT->CompTime[i] == clock + 1) //§ó·s§¹¦¨®É¶¡
+            {
+                if (strcmpi(_DA[i].Dop, "L.D") == 0)
+                {
+                    _IS->IScomp[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "S.D") == 0)
+                {
+                    _IS->IScomp[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "ADD.D") == 0)
+                {
+                    _IS->IScomp[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "SUB.D") == 0)
+                {
+                    _IS->IScomp[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "MUL.D") == 0)
+                {
+                    _IS->IScomp[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "DIV.D") == 0)
+                {
+                    _IS->IScomp[i] = clock + 1;
+                }
+                else
+                    printf("Error");
+            }
+            if (_RT->ResultTime[i] == clock + 1) //§ó·swrite back®É¶¡
+            {
+                if (strcmpi(_DA[i].Dop, "L.D") == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp);              //¨ú±oload¦ì¸m
+                    sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3); //¨ú±o°¾²¾¶q»P°_©l¦ì¸m
+                    Itemp2 += _RE->REintaddress[Itemp3];
+                    _RE->REfloat[(Itemp / 2)] = MEM[(Itemp2)]; //load data from memory
+                    for (int j = 0; j < 2; j++)
+                    {
+                        if (strcmpi(_DA[i].Dtag, _LBF[j].BFname) == 0)
+                        {
+                            _LBF[j].BFaddress = "";
+                            _LBF->BFbusy[j] = false;
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                        }
+                    }
+                    _DA->Dflag[i] = true;
+                    _IS->ISresult[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "S.D") == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp);                  //¨ú±oload¦ì¸m
+                    sscanf(_DA[i].Dj, "%d(R%d)", &Itemp2, &Itemp3);     //¨ú±o°¾²¾¶q»P°_©l¦ì¸m
+                    MEM[(Itemp2 + Itemp3)] = _RE->REfloat[(Itemp / 2)]; //store data from memory
+                    for (int j = 0; j < 2; j++)
+                    {
+                        if (strcmpi(_DA[i].Dtag, _SBF[j].BFname) == 0)
+                        {
+                            _SBF[j].BFaddress = "";
+                            _SBF->BFbusy[j] = false;
+                        }
+                    }
+                    _DA->Dflag[i] = true;
+                    _IS->ISresult[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "ADD.D") == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp);
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (strcmpi(_DA[i].Dtag, _ADD[j].ADname) == 0)
+                        {
+                            _ADD->ADbusy[j] = 0;
+                            _ADD[j].ADop = "";
+                            _ADD[j].ADvj = "";
+                            _ADD[j].ADvk = "";
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                        }
+                    }
+                    _DA->Dflag[i] = true;
+                    _IS->ISresult[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "SUB.D") == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp);
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (strcmpi(_DA[i].Dtag, _ADD[j].ADname) == 0)
+                        {
+                            _ADD->ADbusy[j] = 0;
+                            _ADD[j].ADop = "";
+                            _ADD[j].ADvj = "";
+                            _ADD[j].ADvk = "";
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                            break;
+                        }
+                    }
+                    _DA->Dflag[i] = true;
+                    _IS->ISresult[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "MUL.D") == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp);
+                    for (int j = 0; j < 2; j++)
+                    {
+                        if (strcmpi(_DA[i].Dtag, _MULT[j].MUname) == 0)
+                        {
+                            _MULT->MUbusy[j] = 0;
+                            _MULT[j].MUop = "";
+                            _MULT[j].MUvj = "";
+                            _MULT[j].MUvk = "";
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                        }
+                    }
+                    _DA->Dflag[i] = true;
+                    _IS->ISresult[i] = clock + 1;
+                }
+                else if (strcmpi(_DA[i].Dop, "DIV.D") == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp);
+                    for (int j = 0; j < 2; j++)
+                    {
+                        if (strcmpi(_DA[i].Dtag, _MULT[j].MUname) == 0)
+                        {
+                            _MULT->MUbusy[j] = 0;
+                            _MULT[j].MUop = "";
+                            _MULT[j].MUvj = "";
+                            _MULT[j].MUvk = "";
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                        }
+                    }
+                    _DA->Dflag[i] = true;
+                    _IS->ISresult[i] = clock + 1;
+                }
+                else
+                    printf("Error");
+            }
+        }
+    }
+
 }
