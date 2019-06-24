@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#define TEST "test2.txt"
+#define TEST "test3.txt"
 struct Data
 {
     char *Dop;
@@ -434,6 +434,18 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                         {
                             _ADD[i].ADqk = _RE[(Itemp3 / 2)].REfloataddress;
                         }
+                        if (Itemp == Itemp2)
+                        {
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                            _ADD[i].ADqj = "";
+                            _ADD[i].ADvj = _DA[clock].Dj;
+                        }
+                        if (Itemp == Itemp3)
+                        {
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                            _ADD[i].ADqk = "";
+                            _ADD[i].ADvk = _DA[clock].Dk;
+                        }
                         break;
                     }
                 }
@@ -483,6 +495,18 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                         {
                             _MULT[i].MUqk = _RE[(Itemp3 / 2)].REfloataddress;
                         }
+                        if (Itemp == Itemp2)
+                        {
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                            _MULT[i].MUqj = "";
+                            _MULT[i].MUvj = _DA[clock].Dj;
+                        }
+                        if (Itemp == Itemp3)
+                        {
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                            _MULT[i].MUqk = "";
+                            _MULT[i].MUvk = _DA[clock].Dk;
+                        }
                         break;
                     }
                 }
@@ -530,6 +554,18 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                         else
                         {
                             _MULT[i].MUqk = _RE[(Itemp3 / 2)].REfloataddress;
+                        }
+                        if (Itemp == Itemp2)
+                        {
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                            _MULT[i].MUqj = "";
+                            _MULT[i].MUvj = _DA[clock].Dj;
+                        }
+                        if (Itemp == Itemp3)
+                        {
+                            _RE[(Itemp / 2)].REfloataddress = "";
+                            _MULT[i].MUqk = "";
+                            _MULT[i].MUvk = _DA[clock].Dk;
                         }
                         break;
                     }
@@ -653,7 +689,6 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
         }
     }
     //檢查沒有完成及輸出時間運算元
-
     for (int j = 0; j < 3; j++) //Add
     {
         if (_ADD->ADbusy[j])
@@ -665,6 +700,7 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                     sscanf(_DA[i].Di, "F%d,", &Itemp);
                     sscanf(_DA[i].Dj, "F%d,", &Itemp2);
                     sscanf(_DA[i].Dk, "F%d", &Itemp3);
+
                     if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0)
                     {
                         _ADD[j].ADvj = _DA[i].Dj;
@@ -679,6 +715,18 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                     {
                         _RE[(Itemp / 2)].REfloataddress = _ADD[i].ADname;
                     }
+                    if (Itemp == Itemp2)
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = "";
+                        _ADD[j].ADqj = "";
+                        _ADD[j].ADvj = _DA[i].Dj;
+                    }
+                    if (Itemp == Itemp3)
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = "";
+                        _ADD[j].ADqk = "";
+                        _ADD[j].ADvk = _DA[i].Dk;
+                    }
                     if (strlen(_ADD[j].ADvj) != 0 && strlen(_ADD[j].ADvk) != 0)
                     {
                         _RT->CompTime[i] = clock + 3;   //設置完成時間
@@ -689,7 +737,7 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
             }
         }
     }
-    for (int j = 0; j < 2; j++) //Mult
+    for (int j = 0; j < 2; j++) //Mult an store
     {
         if (_MULT->MUbusy[j])
         {
@@ -713,6 +761,18 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                     if (strlen(_RE[(Itemp / 2)].REfloataddress) == 0)
                     {
                         _RE[(Itemp / 2)].REfloataddress = _MULT[j].MUname;
+                    }
+                    if (Itemp == Itemp2)
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = "";
+                        _MULT[j].MUqj = "";
+                        _MULT[j].MUvj = _DA[i].Dj;
+                    }
+                    if (Itemp == Itemp3)
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = "";
+                        _MULT[j].MUqk = "";
+                        _MULT[j].MUvk = _DA[i].Dk;
                     }
                     if (strlen(_MULT[j].MUvj) != 0 && strlen(_MULT[j].MUvk) != 0)
                     {
