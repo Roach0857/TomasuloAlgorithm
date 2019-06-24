@@ -186,13 +186,13 @@ int main(void)
     IS->ISresult = (int *)calloc((AmountOfLine), sizeof(int));
     //宣告指示狀態所需陣列
     MakeChart(&AmountOfLine, DA, LBF, SBF, ADD, MULT, RE, IS);
-    while (clock != 49)
-    //while (flag != AmountOfLine + 1)
+    //while (clock != 50)
+    while (flag != AmountOfLine + 1)
     {
         flag = 1;
         JudgmentAndOperation(&AmountOfLine, Memory, DA, LBF, SBF, ADD, MULT, RE, IS, RT);
         clock++;
-        //MakeChart(&AmountOfLine, DA, LBF, SBF, ADD, MULT, RE, IS);
+        MakeChart(&AmountOfLine, DA, LBF, SBF, ADD, MULT, RE, IS);
         for (int i = 0; i < AmountOfLine; i++)
         {
             if (DA->Dflag[i])
@@ -353,38 +353,44 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
             {
                 if (!(_LBF->BFbusy[i]))
                 {
-                    _RE[(Itemp / 2)].REfloataddress = _LBF[i].BFname; //在暫存器放入buffer位置
-                    _LBF[i].BFaddress = _DA[clock].Dj;                //在buffer中放入j位置
+                    _LBF[i].BFaddress = _DA[clock].Dj; //在buffer中放入j位置
                     _LBF->BFbusy[i] = true;
+                    _RE[(Itemp / 2)].REfloataddress = _LBF[i].BFname; //在暫存器放入buffer位置
                     _DA[clock].Dtag = _LBF[i].BFname;
+                    _IS->ISissue[clock] = clock + 1;
+                    _RT->CompTime[clock] = clock + 3;   //設置完成時間
+                    _RT->ResultTime[clock] = clock + 4; //設置輸出時間
+                    printf("%s %d %d\n", _LBF[i].BFname, _RT->CompTime[clock], _RT->ResultTime[clock]);
                     printf("LDy\n");
                     break;
                 }
-            };
-            _IS->ISissue[clock] = clock + 1;
-            _RT->CompTime[clock] = clock + 3;   //設置完成時間
-            _RT->ResultTime[clock] = clock + 4; //設置輸出時間
+            }
         }
-        else if (strcmpi(_DA[clock].Dop, "S.D") == 0) //2 cycles
+        else if (strcmpi(_DA[clock].Dop, "S.D") == 0) //1 cycles
         {
             sscanf(_DA[clock].Di, "F%d,", &Itemp); //取得store位置
             for (int i = 0; i < 2; i++)            //找出空的buffer將資料放入
             {
-                if (!(_LBF->BFbusy[i]))
+                if (!(_SBF->BFbusy[i]))
                 {
                     _SBF[i].BFaddress = _DA[clock].Dj; //在buffer中放入j位置
                     _SBF->BFbusy[i] = true;
                     _DA[clock].Dtag = _SBF[i].BFname;
-                    printf("SDy\n");
+                    _IS->ISissue[clock] = clock + 1;
+                    _RT->CompTime[clock] = clock + 2; //設置完成時間
+                    if (strlen(_RE[(Itemp / 2)].REfloataddress) == 0)
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = _SBF[i].BFname; //在暫存器放入buffer位置
+                        _RT->ResultTime[clock] = clock + 4;               //設置輸出時間
+                        printf("%s %d %d\n", _SBF[i].BFname, _RT->CompTime[clock], _RT->ResultTime[clock]);
+                        printf("SDy\n");
+                        break;
+                    }
                     break;
                 }
             }
-            _IS->ISissue[clock] = clock + 1;
-            _RT->CompTime[clock] = clock + 3;   //設置完成時間
-            _RT->ResultTime[clock] = clock + 4; //設置輸出時間
-            clock++;
         }
-        else if (strcmpi(_DA[clock].Dop, "ADD.D") == 0) //2 cycles
+        else if (strcmpi(_DA[clock].Dop, "ADD.D") == 0 || strcmpi(_DA[clock].Dop, "SUB.D") == 0) //2 cycles
         {
             sscanf(_DA[clock].Di, "F%d,", &Itemp);
             sscanf(_DA[clock].Dj, "F%d,", &Itemp2);
@@ -395,9 +401,11 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                 {
                     _ADD->ADbusy[i] = true;
                     _ADD[i].ADop = _DA[clock].Dop;
-                    _RE[(Itemp / 2)].REfloataddress = _ADD[i].ADname;
                     _DA[clock].Dtag = _ADD[i].ADname;
-                    //若兩個暫存器皆沒有再load，則可以設置完成及輸出時間
+                    if (strlen(_RE[(Itemp / 2)].REfloataddress) == 0)
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = _ADD[i].ADname;
+                    }
                     if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0 && strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
                     {
                         _ADD[i].ADvj = _DA[clock].Dj;
@@ -410,7 +418,7 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                     }
                     else
                     {
-                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0) //確認該暫存器是否再load
+                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0)
                         {
                             _ADD[i].ADvj = _DA[clock].Dj;
                         }
@@ -418,7 +426,7 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                         {
                             _ADD[i].ADqj = _RE[(Itemp2 / 2)].REfloataddress;
                         }
-                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //確認該暫存器是否再load
+                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
                         {
                             _ADD[i].ADvk = _DA[clock].Dk;
                         }
@@ -426,56 +434,6 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                         {
                             _ADD[i].ADqk = _RE[(Itemp3 / 2)].REfloataddress;
                         }
-                        printf("ADDy\n");
-                        break;
-                    }
-                }
-            }
-            _IS->ISissue[clock] = clock + 1;
-        }
-        else if (strcmpi(_DA[clock].Dop, "SUB.D") == 0) //2 cycles
-        {
-            sscanf(_DA[clock].Di, "F%d,", &Itemp);
-            sscanf(_DA[clock].Dj, "F%d,", &Itemp2);
-            sscanf(_DA[clock].Dk, "F%d", &Itemp3);
-            for (int i = 0; i < 3; i++) //放置Busy和Op
-            {
-                if (!(_ADD->ADbusy[i]))
-                {
-                    _ADD->ADbusy[i] = true;
-                    _ADD[i].ADop = _DA[clock].Dop;
-                    _RE[(Itemp / 2)].REfloataddress = _ADD[i].ADname;
-                    _DA[clock].Dtag = _ADD[i].ADname;
-                    //若兩個暫存器皆沒有再load，則可以設置完成及輸出時間
-                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0 && strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
-                    {
-                        _ADD[i].ADvj = _DA[clock].Dj;
-                        _ADD[i].ADvk = _DA[clock].Dk;
-                        _RT->CompTime[clock] = clock + 3;   //設置完成時間
-                        _RT->ResultTime[clock] = clock + 4; //設置輸出時間
-                        printf("%s %d\n", _ADD[i].ADname, _RT->CompTime[clock]);
-                        printf("SUBy\n");
-                        break;
-                    }
-                    else
-                    {
-                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0) //確認該暫存器是否再load
-                        {
-                            _ADD[i].ADvj = _DA[clock].Dj;
-                        }
-                        else
-                        {
-                            _ADD[i].ADqj = _RE[(Itemp2 / 2)].REfloataddress;
-                        }
-                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //確認該暫存器是否再load
-                        {
-                            _ADD[i].ADvk = _DA[clock].Dk;
-                        }
-                        else
-                        {
-                            _ADD[i].ADqk = _RE[(Itemp3 / 2)].REfloataddress;
-                        }
-                        printf("SUBy\n");
                         break;
                     }
                 }
@@ -493,16 +451,17 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                 {
                     _MULT->MUbusy[i] = true;
                     _MULT[i].MUop = _DA[clock].Dop;
-                    _RE[(Itemp / 2)].REfloataddress = _MULT[i].MUname;
                     _DA[clock].Dtag = _MULT[i].MUname;
                     //若兩個暫存器皆沒有再load，則可以設置完成及輸出時間
-                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0 && strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
+                    if (strlen(_RE[(Itemp / 2)].REfloataddress) == 0)
                     {
-                        _MULT[i].MUvj = _DA[clock].Dj;
-                        _MULT[i].MUvk = _DA[clock].Dk;
+                        _RE[(Itemp / 2)].REfloataddress = _MULT[i].MUname;
+                    }
+                    if (strlen(_MULT[i].MUvk) != 0 && strlen(_MULT[i].MUvk) != 0)
+                    {
                         _RT->CompTime[clock] = clock + 11;   //設置完成時間
                         _RT->ResultTime[clock] = clock + 12; //設置輸出時間
-                        printf("%s %d\n", _MULT[i].MUname, _RT->CompTime[clock]);
+                        printf("%s %d %d\n", _MULT[i].MUname, _RT->CompTime[clock], _RT->ResultTime[clock]);
                         printf("MULy\n");
                         break;
                     }
@@ -524,7 +483,6 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                         {
                             _MULT[i].MUqk = _RE[(Itemp3 / 2)].REfloataddress;
                         }
-                        printf("MULy\n");
                         break;
                     }
                 }
@@ -542,17 +500,17 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                 {
                     _MULT->MUbusy[i] = true;
                     _MULT[i].MUop = _DA[clock].Dop;
-                    _RE[(Itemp / 2)].REfloataddress = _MULT[i].MUname;
                     _DA[clock].Dtag = _MULT[i].MUname;
-                    //若兩個暫存器皆沒有再load，則可以設置完成及輸出時間
-                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0 && strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0)
+                    if (strlen(_RE[(Itemp / 2)].REfloataddress) == 0)
                     {
-                        _MULT[i].MUvj = _DA[clock].Dj;
-                        _MULT[i].MUvk = _DA[clock].Dk;
+                        _RE[(Itemp / 2)].REfloataddress = _MULT[i].MUname;
+                    }
+                    if (strlen(_MULT[i].MUvk) != 0 && strlen(_MULT[i].MUvk) != 0)
+                    {
                         _RT->CompTime[clock] = clock + 41;   //設置完成時間
                         _RT->ResultTime[clock] = clock + 42; //設置輸出時間
-                        printf("%s %d\n", _MULT[i].MUname, _RT->CompTime[clock]);
-                        printf("DIVy\n");
+                        printf("%s %d %d\n", _MULT[i].MUname, _RT->CompTime[clock], _RT->ResultTime[clock]);
+                        printf("MULy\n");
                         break;
                     }
                     else
@@ -573,90 +531,11 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                         {
                             _MULT[i].MUqk = _RE[(Itemp3 / 2)].REfloataddress;
                         }
-                        printf("DIVy\n");
                         break;
                     }
                 }
             }
             _IS->ISissue[clock] = clock + 1;
-        }
-    }
-
-    //檢查沒有完成及輸出時間運算元
-    for (int j = 0; j < 3; j++) //Add
-    {
-        if (_ADD->ADbusy[j] == 1)
-        {
-            for (int i = 0; i < (*AOL); i++)
-            {
-                if (strcmpi(_DA[i].Dtag, _ADD[j].ADname) == 0 && _RT->CompTime[i] == 0)
-                {
-                    sscanf(_DA[i].Dj, "F%d,", &Itemp2);
-                    sscanf(_DA[i].Dk, "F%d", &Itemp3);
-                    if (strlen(_ADD[j].ADvj) == 0 || strlen(_ADD[j].ADvk) == 0)
-                    {
-                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0)
-                        {
-                            _ADD[j].ADvj = _DA[i].Dj;
-                            _ADD[j].ADqj = "";
-                        }
-                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //確認該暫存器是否再load
-                        {
-                            _ADD[j].ADvk = _DA[i].Dk;
-                            _ADD[j].ADqk = "";
-                        }
-                    }
-                    if (strlen(_ADD[j].ADvj) != 0 && strlen(_ADD[j].ADvk) != 0)
-                    {
-                        _RT->CompTime[i] = clock + 3;   //設置完成時間
-                        _RT->ResultTime[i] = clock + 4; //設置輸出時間
-                        printf("%s %d %d\n", _ADD[j].ADname, _RT->CompTime[i], _RT->ResultTime[i]);
-                    }
-                }
-            }
-        }
-    }
-    for (int j = 0; j < 2; j++) //Mult
-    {
-        if (_MULT->MUbusy[j] == 1)
-        {
-            for (int i = 0; i < (*AOL); i++)
-            {
-                if (strcmpi(_DA[i].Dtag, _MULT[j].MUname) == 0 && _RT->CompTime[i] == 0)
-                {
-                    sscanf(_DA[i].Dj, "F%d,", &Itemp2);
-                    sscanf(_DA[i].Dk, "F%d", &Itemp3);
-                    if (strlen(_MULT[j].MUvj) == 0 || strlen(_MULT[j].MUvk) == 0)
-                    {
-                        if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0)
-                        {
-                            _MULT[j].MUvj = _DA[i].Dj;
-                            _MULT[j].MUqj = "";
-                        }
-                        if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //確認該暫存器是否再load
-                        {
-                            _MULT[j].MUvk = _DA[i].Dk;
-                            _MULT[j].MUqk = "";
-                        }
-                    }
-                    if (strlen(_MULT[j].MUvj) != 0 && strlen(_MULT[j].MUvk) != 0)
-                    {
-                        if (strcmpi(_MULT[j].MUop, "MUL.D") == 0)
-                        {
-                            _RT->CompTime[i] = clock + 11;   //設置完成時間
-                            _RT->ResultTime[i] = clock + 12; //設置輸出時間
-                            printf("%s %d %d\n", _ADD[j].ADname, _RT->CompTime[i], _RT->ResultTime[i]);
-                        }
-                        else if (strcmpi(_MULT[j].MUop, "DIV.D") == 0)
-                        {
-                            _RT->CompTime[i] = clock + 41;   //設置完成時間
-                            _RT->ResultTime[i] = clock + 42; //設置輸出時間
-                            printf("%s %d %d\n", _ADD[j].ADname, _RT->CompTime[i], _RT->ResultTime[i]);
-                        }
-                        break;
-                    }
-                }
-            }
         }
     }
     //檢查完成時間是否已到達
@@ -708,6 +587,7 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                             _LBF[j].BFaddress = "";
                             _LBF->BFbusy[j] = false;
                             _RE[(Itemp / 2)].REfloataddress = "";
+                            break;
                         }
                     }
                     _DA->Dflag[i] = true;
@@ -724,29 +604,14 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                         {
                             _SBF[j].BFaddress = "";
                             _SBF->BFbusy[j] = false;
-                        }
-                    }
-                    _DA->Dflag[i] = true;
-                    _IS->ISresult[i] = clock + 1;
-                }
-                else if (strcmpi(_DA[i].Dop, "ADD.D") == 0)
-                {
-                    sscanf(_DA[i].Di, "F%d,", &Itemp);
-                    for (int j = 0; j < 3; j++)
-                    {
-                        if (strcmpi(_DA[i].Dtag, _ADD[j].ADname) == 0)
-                        {
-                            _ADD->ADbusy[j] = 0;
-                            _ADD[j].ADop = "";
-                            _ADD[j].ADvj = "";
-                            _ADD[j].ADvk = "";
                             _RE[(Itemp / 2)].REfloataddress = "";
+                            break;
                         }
                     }
                     _DA->Dflag[i] = true;
                     _IS->ISresult[i] = clock + 1;
                 }
-                else if (strcmpi(_DA[i].Dop, "SUB.D") == 0)
+                else if (strcmpi(_DA[i].Dop, "ADD.D") == 0 || strcmpi(_DA[i].Dop, "SUB.D") == 0)
                 {
                     sscanf(_DA[i].Di, "F%d,", &Itemp);
                     for (int j = 0; j < 3; j++)
@@ -764,7 +629,7 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                     _DA->Dflag[i] = true;
                     _IS->ISresult[i] = clock + 1;
                 }
-                else if (strcmpi(_DA[i].Dop, "MUL.D") == 0)
+                else if (strcmpi(_DA[i].Dop, "MUL.D") == 0 || strcmpi(_DA[i].Dop, "DIV.D") == 0)
                 {
                     sscanf(_DA[i].Di, "F%d,", &Itemp);
                     for (int j = 0; j < 2; j++)
@@ -776,23 +641,7 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
                             _MULT[j].MUvj = "";
                             _MULT[j].MUvk = "";
                             _RE[(Itemp / 2)].REfloataddress = "";
-                        }
-                    }
-                    _DA->Dflag[i] = true;
-                    _IS->ISresult[i] = clock + 1;
-                }
-                else if (strcmpi(_DA[i].Dop, "DIV.D") == 0)
-                {
-                    sscanf(_DA[i].Di, "F%d,", &Itemp);
-                    for (int j = 0; j < 2; j++)
-                    {
-                        if (strcmpi(_DA[i].Dtag, _MULT[j].MUname) == 0)
-                        {
-                            _MULT->MUbusy[j] = 0;
-                            _MULT[j].MUop = "";
-                            _MULT[j].MUvj = "";
-                            _MULT[j].MUvk = "";
-                            _RE[(Itemp / 2)].REfloataddress = "";
+                            break;
                         }
                     }
                     _DA->Dflag[i] = true;
@@ -803,5 +652,103 @@ void JudgmentAndOperation(int *AOL, int *MEM, struct Data *_DA, struct Buffer *_
             }
         }
     }
+    //檢查沒有完成及輸出時間運算元
 
+    for (int j = 0; j < 3; j++) //Add
+    {
+        if (_ADD->ADbusy[j])
+        {
+            for (int i = 0; i < (*AOL); i++)
+            {
+                if (strcmpi(_DA[i].Dtag, _ADD[j].ADname) == 0 && _RT->CompTime[i] == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp);
+                    sscanf(_DA[i].Dj, "F%d,", &Itemp2);
+                    sscanf(_DA[i].Dk, "F%d", &Itemp3);
+                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0)
+                    {
+                        _ADD[j].ADvj = _DA[i].Dj;
+                        _ADD[j].ADqj = "";
+                    }
+                    if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //確認該暫存器是否再load
+                    {
+                        _ADD[j].ADvk = _DA[i].Dk;
+                        _ADD[j].ADqk = "";
+                    }
+                    if (strlen(_RE[(Itemp / 2)].REfloataddress) == 0) //確認該暫存器是否再load
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = _ADD[i].ADname;
+                    }
+                    if (strlen(_ADD[j].ADvj) != 0 && strlen(_ADD[j].ADvk) != 0)
+                    {
+                        _RT->CompTime[i] = clock + 3;   //設置完成時間
+                        _RT->ResultTime[i] = clock + 4; //設置輸出時間
+                        printf("%s %d %d\n", _ADD[j].ADname, _RT->CompTime[i], _RT->ResultTime[i]);
+                    }
+                }
+            }
+        }
+    }
+    for (int j = 0; j < 2; j++) //Mult
+    {
+        if (_MULT->MUbusy[j])
+        {
+            for (int i = 0; i < (*AOL); i++)
+            {
+                if (strcmpi(_DA[i].Dtag, _MULT[j].MUname) == 0 && _RT->CompTime[i] == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp);
+                    sscanf(_DA[i].Dj, "F%d,", &Itemp2);
+                    sscanf(_DA[i].Dk, "F%d", &Itemp3);
+                    if (strlen(_RE[(Itemp2 / 2)].REfloataddress) == 0)
+                    {
+                        _MULT[j].MUvj = _DA[i].Dj;
+                        _MULT[j].MUqj = "";
+                    }
+                    if (strlen(_RE[(Itemp3 / 2)].REfloataddress) == 0) //確認該暫存器是否再load
+                    {
+                        _MULT[j].MUvk = _DA[i].Dk;
+                        _MULT[j].MUqk = "";
+                    }
+                    if (strlen(_RE[(Itemp / 2)].REfloataddress) == 0)
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = _MULT[j].MUname;
+                    }
+                    if (strlen(_MULT[j].MUvj) != 0 && strlen(_MULT[j].MUvk) != 0)
+                    {
+                        if (strcmpi(_MULT[j].MUop, "MUL.D") == 0)
+                        {
+                            _RT->CompTime[i] = clock + 11;   //設置完成時間
+                            _RT->ResultTime[i] = clock + 12; //設置輸出時間
+                            printf("%s %d %d\n", _MULT[j].MUname, _RT->CompTime[i], _RT->ResultTime[i]);
+                        }
+                        else if (strcmpi(_MULT[j].MUop, "DIV.D") == 0)
+                        {
+                            _RT->CompTime[i] = clock + 41;   //設置完成時間
+                            _RT->ResultTime[i] = clock + 42; //設置輸出時間
+                            printf("%s %d %d\n", _MULT[j].MUname, _RT->CompTime[i], _RT->ResultTime[i]);
+                        }
+                    }
+                }
+            }
+        }
+        if (_SBF->BFbusy[j])
+        {
+            for (int i = 0; i < (*AOL); i++)
+            {
+                if (strcmpi(_DA[i].Dtag, _SBF[j].BFname) == 0 && _RT->ResultTime[i] == 0)
+                {
+                    sscanf(_DA[i].Di, "F%d,", &Itemp); //取得load位置
+
+                    if (strlen(_RE[(Itemp / 2)].REfloataddress) == 0)
+                    {
+                        _RE[(Itemp / 2)].REfloataddress = _SBF[j].BFname; //在暫存器放入buffer位置
+                        _RT->ResultTime[i] = clock + 2;                   //設置輸出時間
+                        printf("%s %d %d\n", _SBF[j].BFname, _RT->CompTime[i], _RT->ResultTime[i]);
+                        printf("SDy2\n");
+                    }
+                }
+            }
+        }
+    }
 }
